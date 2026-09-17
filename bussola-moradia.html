@@ -1,0 +1,600 @@
+<title>Bússola Moradia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F4EE;
+    --surface:#FFFFFF;
+    --surface-2:#EAEEE4;
+    --ink:#152524;
+    --ink-soft:#3B4A47;
+    --muted:#6B7570;
+    --line:#DDE3D6;
+    --accent:#0E6E6B;
+    --accent-ink:#FFFFFF;
+    --accent-soft:#DCEEEC;
+    --accent2:#C1571A;
+    --accent2-soft:#F7E3D3;
+    --good:#1F7A4D;
+    --good-soft:#DFF0E4;
+    --warn:#93650A;
+    --warn-soft:#F6E9C9;
+    --shadow: 0 1px 2px rgba(21,37,36,.06), 0 8px 24px -12px rgba(21,37,36,.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F1817;
+      --surface:#16211F;
+      --surface-2:#1C2926;
+      --ink:#EAF1EE;
+      --ink-soft:#C4D2CD;
+      --muted:#8FA19B;
+      --line:#283532;
+      --accent:#52D2C6;
+      --accent-ink:#062523;
+      --accent-soft:#173432;
+      --accent2:#FF9A5C;
+      --accent2-soft:#3A2416;
+      --good:#5FD696;
+      --good-soft:#123326;
+      --warn:#E8C25F;
+      --warn-soft:#3A2E0E;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F1817;
+    --surface:#16211F;
+    --surface-2:#1C2926;
+    --ink:#EAF1EE;
+    --ink-soft:#C4D2CD;
+    --muted:#8FA19B;
+    --line:#283532;
+    --accent:#52D2C6;
+    --accent-ink:#062523;
+    --accent-soft:#173432;
+    --accent2:#FF9A5C;
+    --accent2-soft:#3A2416;
+    --good:#5FD696;
+    --good-soft:#123326;
+    --warn:#E8C25F;
+    --warn-soft:#3A2E0E;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    font-size:15.5px;
+    line-height:1.5;
+    padding-inline:16px;
+    padding-block:28px 64px;
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;text-wrap:balance;margin:0;}
+  a{color:var(--accent);}
+  .num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+
+  header.top{display:flex;gap:18px;align-items:flex-start;margin-bottom:28px;}
+  header.top .mark{flex:none;width:52px;height:52px;color:var(--accent);}
+  header.top h1{font-size:28px;color:var(--ink);}
+  header.top p{margin:6px 0 0;color:var(--ink-soft);max-width:56ch;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .stack{display:flex;flex-direction:column;gap:20px;}
+  .section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px;}
+  .section-title h2{font-size:19px;}
+  .eyebrow{font-family:"IBM Plex Sans";font-weight:600;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);}
+
+  .hint{
+    background:var(--accent-soft);
+    border:1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+    color:var(--ink-soft);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13.5px;
+    margin-bottom:14px;
+  }
+  .hint b{color:var(--ink);}
+
+  .member-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .member-row input[type="text"]{flex:1 1 40%;min-width:0;}
+  .member-row .money-field{flex:1 1 45%;min-width:0;position:relative;}
+  .member-row .money-field span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;}
+  .member-row .money-field input{padding-left:30px;width:100%;}
+  input[type="text"],input[type="number"]{
+    font:inherit;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    border-radius:8px;
+    padding:9px 11px;
+    font-family:"IBM Plex Mono",monospace;
+  }
+  input[type="text"]{font-family:"IBM Plex Sans";}
+  input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .icon-btn{
+    flex:none;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);
+    width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;line-height:1;
+  }
+  .icon-btn:hover{color:var(--accent2);border-color:var(--accent2);}
+  .add-member{
+    margin-top:4px;border:1px dashed var(--line);background:transparent;color:var(--accent);
+    padding:9px 14px;border-radius:8px;cursor:pointer;font:inherit;font-weight:600;font-size:13.5px;
+  }
+  .add-member:hover{background:var(--accent-soft);}
+
+  .total-row{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+  }
+  .total-row .label{color:var(--ink-soft);font-size:13.5px;}
+  .total-row .value{font-size:24px;font-weight:600;color:var(--accent);}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);
+    padding:7px 13px;border-radius:99px;cursor:pointer;font-size:13.5px;user-select:none;
+  }
+  .chip input{position:absolute;opacity:0;pointer-events:none;}
+  .chip .count{color:var(--muted);font-size:12px;}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .chip.on .count{color:var(--accent-ink);opacity:.75;}
+  .chip-group-label{font-size:12px;color:var(--muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.06em;}
+  .chip-row-tools{display:flex;gap:14px;margin-bottom:10px;}
+  .link-btn{background:none;border:none;color:var(--accent);font:inherit;font-weight:600;font-size:13px;cursor:pointer;padding:0;}
+
+  .cta-row{display:flex;justify-content:flex-end;margin-top:18px;}
+  .cta{
+    background:var(--accent2);color:#fff;border:none;border-radius:9px;
+    padding:12px 22px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;
+    box-shadow:0 6px 16px -6px color-mix(in srgb, var(--accent2) 60%, transparent);
+  }
+  .cta:hover{filter:brightness(1.06);}
+
+  .summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:24px 0;}
+  .summary-tile{background:var(--surface);padding:16px;}
+  .summary-tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;}
+  .summary-tile .v{font-size:19px;font-weight:600;color:var(--ink);}
+  .summary-tile .v.accent{color:var(--accent);}
+  .summary-tile .v.accent2{color:var(--accent2);}
+  @media (max-width:640px){.summary-strip{grid-template-columns:repeat(2,1fr);}}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:99px;white-space:nowrap;}
+  .badge.federal{background:var(--accent-soft);color:var(--accent);}
+  .badge.estadual{background:var(--accent2-soft);color:var(--accent2);}
+  .badge.municipal{background:var(--surface-2);color:var(--ink-soft);}
+
+  /* Icon hints: tap/hover a badge or a ⓘ to see the program explanation, replacing the old standalone programs panel */
+  .tip{position:relative;cursor:help;}
+  .tip .tip-icon{opacity:.75;font-size:.95em;}
+  .tip::after{
+    content:attr(data-tip);
+    position:absolute; left:0; bottom:calc(100% + 7px);
+    background:var(--ink); color:var(--bg);
+    padding:9px 11px; border-radius:8px;
+    font-size:12px; font-weight:500; line-height:1.45;
+    width:250px; max-width:min(72vw,320px); white-space:normal;
+    box-shadow:var(--shadow);
+    opacity:0; transform:translateY(4px);
+    transition:opacity .12s ease, transform .12s ease;
+    pointer-events:none; z-index:30;
+  }
+  .tip:hover::after,.tip:focus-visible::after{opacity:1;transform:translateY(0);}
+  .tip:focus{outline:none;}
+  .tip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .icon-only{color:var(--muted);font-size:14px;margin-left:5px;vertical-align:middle;}
+  .hint-note{color:var(--muted);font-size:12.5px;margin:-4px 0 14px;}
+
+  .budget-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);margin:14px 0 4px;}
+
+  .prop-grid{display:flex;flex-direction:column;gap:12px;}
+  .prop{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--surface);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between;}
+  .prop .info{flex:1 1 280px;min-width:0;}
+  .prop h3{font-size:16px;margin-bottom:2px;}
+  .prop .meta{color:var(--muted);font-size:13px;}
+  .prop .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+  .prop .price-col{flex:none;text-align:right;min-width:150px;}
+  .prop .price{font-size:20px;font-weight:600;color:var(--accent2);}
+  .prop .price small{display:block;font-size:11px;font-weight:500;color:var(--muted);}
+  .prop .details-line{margin-top:8px;font-size:12.8px;color:var(--ink-soft);}
+  .prop a.link{display:inline-block;margin-top:10px;font-size:13px;font-weight:600;}
+  .empty-state{border:1px dashed var(--line);border-radius:12px;padding:28px 20px;text-align:center;color:var(--muted);}
+  .noprice-list{margin-top:14px;font-size:13px;color:var(--muted);}
+  .noprice-list ul{margin:6px 0 0;padding-left:18px;}
+
+  footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;}
+  footer p{margin:0 0 6px;}
+
+  ::selection{background:var(--accent);color:var(--accent-ink);}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <svg class="mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="32" cy="32" r="27" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M32 32 L44 20 L38 38 L20 44 Z" fill="currentColor" opacity="0.85"/>
+      <circle cx="32" cy="32" r="3" fill="currentColor"/>
+    </svg>
+    <div>
+      <h1>Bússola Moradia</h1>
+      <p>Informe a renda da família e os bairros de interesse em Aracaju: a ferramenta cruza os dois com os empreendimentos à venda monitorados e mostra quais programas habitacionais podem apoiar a compra.</p>
+    </div>
+  </header>
+
+  <div class="stack">
+
+    <section class="card" id="form-renda">
+      <div class="section-title">
+        <h2>Renda familiar</h2>
+      </div>
+      <div class="hint">
+        <b>Quem entra nessa conta:</b> some a renda bruta mensal de todos os moradores maiores de 18 anos (ou emancipados) que vão residir no imóvel e constar no financiamento — titular, cônjuge/companheiro(a), pais, filhos com renda própria etc. Para a Faixa 1 do Minha Casa Minha Vida, essa renda também precisa refletir o que está (ou ficará) registrado no CadÚnico. Não conte benefícios eventuais (auxílios pontuais) como renda fixa.
+      </div>
+      <div id="members"></div>
+      <button class="add-member" id="add-member" type="button">+ Adicionar familiar</button>
+      <div class="total-row">
+        <span class="label">Renda familiar total</span>
+        <span class="value num" id="renda-total">R$ 0</span>
+      </div>
+    </section>
+
+    <section class="card" id="form-bairros">
+      <div class="section-title">
+        <h2>Bairros de interesse</h2>
+      </div>
+      <div class="chip-row-tools">
+        <button class="link-btn" id="sel-all" type="button">Selecionar todos</button>
+        <button class="link-btn" id="sel-none" type="button">Limpar seleção</button>
+      </div>
+      <div class="chips" id="chips-aracaju"></div>
+      <div class="chip-group-label">Região metropolitana (fora de Aracaju)</div>
+      <div class="chips" id="chips-fora"></div>
+
+      <div class="cta-row">
+        <button class="cta" id="btn-buscar" type="button">Ver imóveis compatíveis</button>
+      </div>
+    </section>
+
+    <section id="resultados">
+      <div class="summary-strip" id="summary"></div>
+
+      <div class="section-title">
+        <h2>Imóveis compatíveis</h2>
+      </div>
+      <p class="hint-note">Cada selo mostra um programa que cobre o preço do imóvel — toque ou passe o mouse no ⓘ para ver subsídio, requisitos e órgão responsável.</p>
+      <label class="budget-toggle">
+        <input type="checkbox" id="toggle-budget" checked>
+        Mostrar somente imóveis dentro do orçamento estimado
+      </label>
+      <div class="prop-grid" id="properties"></div>
+      <div class="noprice-list" id="noprice"></div>
+    </section>
+
+    <footer>
+      <p><b>Base de imóveis:</b> 68 empreendimentos à venda em Aracaju/SE levantados em portais e sites de construtoras (última atualização: setembro/2026). Preços tratados como estimativa de piso — confirme sempre com a construtora ou corretor.</p>
+      <p><b>Programas habitacionais:</b> valores de renda, subsídio e financiamento são referências nacionais/estaduais de 2026 e podem variar por município e mudar ao longo do ano. Confirme sempre na Caixa Econômica Federal, no portal casasergipana.se.gov.br, ou com a Prefeitura de Aracaju (Semfas) antes de decidir.</p>
+      <p>A estimativa de crédito tradicional usa taxa de 11% a.a., prazo de 30 anos, comprometimento de até 30% da renda e entrada de 20% — é apenas uma referência inicial; o valor real depende da simulação e aprovação do banco.</p>
+    </footer>
+  </div>
+</div>
+
+<script id="dados-busca-imovel" type="application/json">{"empreendimentos": [{"id": 67, "nome": "Moradas Universitá", "construtora": "Dicon Engenharia", "bairro_normalizado": "Rosa Elze (São Cristóvão – fora de Aracaju)", "status_obra": "Não confirmado no site oficial. Anúncio de revenda indica construção em 2019 e entrega em 2021 (empreendimento já concluído/pronto)", "preco_minimo": 140000, "preco_detalhe": "R$ 140.000 (unidade de 2 quartos; outra unidade de 3 quartos/1 suíte anunciada por R$ 170.000)", "metragem_min": 50, "metragem_max": 50, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade (não confirmado no site oficial)", "padrao_acabamento": "Médio, com laje técnica e portão eletrônico (inferido de anúncio de revenda; não confirmado no site oficial)", "area_lazer": "Piscinas adulto/infantil, quadra esportiva, salão de festas, sala de jogos, área de churrasqueira, playground e área fitness (dado de anúncio de revenda, não confirmado no site oficial)", "link": "https://diconengenharia.com.br/empreendimentos/moradas-universita/"}, {"id": 36, "nome": "Villa Natureza", "construtora": "Construtora Impacto", "bairro_normalizado": "Porto D'Antas", "status_obra": "Em construção (estrutura)", "preco_minimo": 150000, "preco_detalhe": "R$ 150.000,00 (unidade de revenda, 43 m², 2 quartos)", "metragem_min": 43, "metragem_max": 43, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico (inferido - unidade única compacta, possível perfil MCMV)", "area_lazer": "Academia, bicicletário, brinquedoteca, churrasqueira, deck, espaço gourmet, gás encanado, piscina adulto/infantil, quadra poliesportiva, salão de festas", "link": "https://www.lopes.com.br/lancamento/REM21428/"}, {"id": 68, "nome": "Moradas do Santo Antônio", "construtora": "Dicon Engenharia", "bairro_normalizado": "Santo Antônio", "status_obra": "Não confirmado no site oficial. Fonte secundária (portal de imóveis) indica empreendimento entregue em 2015 (já concluído/pronto, sem unidades ativas listadas para venda no momento da consulta)", "preco_minimo": 158000, "preco_detalhe": "R$ 158.000 (anúncio finalizado; outra unidade de 60m²/3 quartos anunciada por R$ 230.000)", "metragem_min": null, "metragem_max": null, "quartos_min": null, "quartos_max": null, "vagas_garagem": "Não confirmado", "padrao_acabamento": "Não confirmado", "area_lazer": "Não confirmado", "link": "https://diconengenharia.com.br/empreendimentos/moradas-do-santo-antonio/"}, {"id": 14, "nome": "Parque das Cores (Últimas Unidades)", "construtora": "Não identificada", "bairro_normalizado": "Piabeta", "status_obra": "Em construção; 7 blocos com 4 pavimentos (térreo + 3 tipos); previsão de entrega 30/06/2026", "preco_minimo": 161000, "preco_detalhe": "A partir de R$ 161.000", "metragem_min": 47, "metragem_max": 47, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por apartamento", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Piscina, salão de festas, academia, espaço kids, pet play, parque infantil, bicicletário, Wi-Fi e tomadas USB nas áreas comuns, Box Delivery", "link": "https://barrosenobre.com.br/empreendimento/3414/parque-das-cores-ultimas-unidades"}, {"id": 39, "nome": "Residencial Jardim Das Mangabeiras", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "17 de Março", "status_obra": "Em construção (estrutura)", "preco_minimo": 167000, "preco_detalhe": "A partir de R$ 167.000,00", "metragem_min": 41, "metragem_max": 44, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico (inferido - metragem muito compacta, bairro popular, possível perfil MCMV)", "area_lazer": "Bicicletário, churrasqueira, deck, fitness, piscina, salão de festas", "link": "https://www.lopes.com.br/lancamento/REM21476/"}, {"id": 53, "nome": "Recanto Santa Maria", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "Marivan", "status_obra": "Em construção", "preco_minimo": 177869, "preco_detalhe": "A partir de R$ 177.869 (tabela de lançamento via imobiliária parceira Century; site oficial da Stanza não divulga preço, apenas subsídio MCMV de até R$ 55 mil)", "metragem_min": 39.81, "metragem_max": 40.62, "quartos_min": 1, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade (mais 12 vagas de visitantes: 8 internas e 4 externas; 8 vagas PCD para carros e 20 para motos)", "padrao_acabamento": "Econômico/MCMV (Programa Minha Casa Minha Vida, subsídio de até R$ 55 mil)", "area_lazer": "Salão de festas, play kids, pet play, espaço fitness, deck, piscina adulto/infantil, churrasqueira, bicicletário descoberto (área de lazer total de 1.006,96 m²)", "link": "https://meustanza.com/empreendimento/recanto-santa-maria/"}, {"id": 66, "nome": "Portal da Cidade", "construtora": "Dicon Engenharia", "bairro_normalizado": "Aeroporto", "status_obra": "Não confirmado — parece ser empreendimento já entregue/em revenda no mercado secundário (condomínio já constituído no bairro Aeroporto)", "preco_minimo": 187000, "preco_detalhe": "Não confirmado no site oficial. Anúncios de revenda (mercado secundário) indicam faixa de R$ 187.000 a R$ 210.000, com condomínio entre R$ 310 e R$ 435/mês", "metragem_min": 66, "metragem_max": 66, "quartos_min": 3, "quartos_max": 3, "vagas_garagem": "1 vaga (algumas unidades com 2 vagas) — não confirmado no site oficial", "padrao_acabamento": "Médio/padrão residencial (inferido de anúncios de revenda; não confirmado no site oficial)", "area_lazer": "Não confirmado (site oficial inacessível; não detalhado nas fontes secundárias consultadas)", "link": "https://diconengenharia.com.br/empreendimentos/portal-da-cidade/"}, {"id": 4, "nome": "Reserva das Cores", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Bairro não identificado", "status_obra": "Lançamento; 8 blocos, 4 pavimentos (térreo + 3 tipos)", "preco_minimo": 191200, "preco_detalhe": "A partir de R$ 191.200", "metragem_min": 53, "metragem_max": 53, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por apartamento", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Área de lazer completa e entregue equipada; pré-disposição para wi-fi nas áreas comuns; Box Delivery", "link": "https://centuryimobiliaria.com.br/empreendimento/39752/reserva-das-cores"}, {"id": 15, "nome": "Jardim Marivan Stanza", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "Marivan", "status_obra": "Lançamento; previsão de entrega 30/04/2029", "preco_minimo": 196000, "preco_detalhe": "A partir de R$ 196.000", "metragem_min": 39, "metragem_max": 40, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida; renda familiar mínima R$ 1.650,00)", "area_lazer": "Lazer completo (detalhes não especificados na página)", "link": "https://barrosenobre.com.br/empreendimento/38578/jardim-marivan"}, {"id": 61, "nome": "Viver Aruana", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Aruana", "status_obra": "Pronto para morar — 100% concluído; 3 torres residenciais", "preco_minimo": 196999, "preco_detalhe": "R$ 196.999 (unidade de 50m²)", "metragem_min": 52.14, "metragem_max": 52.19, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por apartamento", "padrao_acabamento": "Médio — moderno, varanda integrada à cozinha em cada unidade", "area_lazer": "Área de lazer completa e entregue equipada; sensores de presença nas áreas comuns; infraestrutura para wi-fi; box delivery", "link": "https://uniaoconstrucoes.com.br/imovel/viver-aruana/"}, {"id": 16, "nome": "Villa Áurea", "construtora": "Construtora Impacto", "bairro_normalizado": "Marivan", "status_obra": "Lançamento (fundação 20% concluída); previsão de entrega 31/03/2028", "preco_minimo": 199564, "preco_detalhe": "A partir de R$ 199.564", "metragem_min": 43.69, "metragem_max": 66.58, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Academia, salão de festas, minimercado, parque infantil e brinquedoteca, quadra poliesportiva, piscinas adulto e infantil com deck molhado, dois espaços para churrasco, bicicletário coberto, Pet Play", "link": "https://barrosenobre.com.br/empreendimento/30900/villa-urea"}, {"id": 2, "nome": "Vista do Rio Mais Viver", "construtora": "Jotanunes Construtora", "bairro_normalizado": "Bairro não identificado", "status_obra": "Lançamento (0% concluído); previsão de entrega 01/11/2030", "preco_minimo": 203000, "preco_detalhe": "A partir de R$ 203.000", "metragem_min": 67.64, "metragem_max": 67.64, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Piscina adulto e infantil, salão de festas, churrasqueira, academia, quadra poliesportiva, beach volley, espaço kids, parque infantil, pet park, bicicletário, pomar, pergolado e pier", "link": "https://centuryimobiliaria.com.br/empreendimento/41338/vista-do-rio-mais-viver"}, {"id": 58, "nome": "Residencial Eloísio Sobral Silveira", "construtora": "União Engenharia e Construções", "bairro_normalizado": "18 do Forte", "status_obra": "Lançamento — 2 torres com 8 apartamentos por andar", "preco_minimo": 203200, "preco_detalhe": "A partir de R$ 203.200 (outra fonte indicou R$ 283.700)", "metragem_min": 52.99, "metragem_max": 53.44, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "Não detalhado por unidade (planta de garagem disponível, sem quantidade especificada)", "padrao_acabamento": "Não especificado na página (perfil médio, região central)", "area_lazer": "Área de lazer completa e entregue equipada: piscina, quadra de esportes, academia, playground, play kids, pet park, churrasqueira, academia ao ar livre, salão de festas, minimarket; área comercial anexa com 8 lojas e 1 âncora", "link": "https://uniaoconstrucoes.com.br/imovel/residencial-eloisio-sobral-silveira/"}, {"id": 1, "nome": "Encanto Mais Viver", "construtora": "Jotanunes Construtora", "bairro_normalizado": "Bairro não identificado", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 207900, "preco_detalhe": "A partir de R$ 207.900", "metragem_min": null, "metragem_max": null, "quartos_min": null, "quartos_max": null, "vagas_garagem": "Não informado", "padrao_acabamento": "Econômico/popular (programa Minha Casa Minha Vida)", "area_lazer": "Não descrita na página", "link": "https://centuryimobiliaria.com.br/empreendimento/41846/encanto-mais-viver"}, {"id": 3, "nome": "Morada dos Pássaros", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Bairro não identificado", "status_obra": "Lançamento; previsão de entrega 31/07/2029", "preco_minimo": 212900, "preco_detalhe": "A partir de R$ 212.900", "metragem_min": 53, "metragem_max": 53, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por apartamento", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Área de lazer completa e entregue equipada; 6 blocos, 4 pavimentos (térreo + 3)", "link": "https://centuryimobiliaria.com.br/empreendimento/41336/morada-dos-pssaros"}, {"id": 17, "nome": "Parque das Mangabeiras", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "Robalo", "status_obra": "Lançamento; previsão de entrega 30/03/2029", "preco_minimo": 215000, "preco_detalhe": "A partir de R$ 215.000", "metragem_min": 39, "metragem_max": 39, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida); piso laminado nas salas e quartos", "area_lazer": "Não informadas na página", "link": "https://barrosenobre.com.br/empreendimento/41496/parque-das-mangabeiras"}, {"id": 18, "nome": "Flor de Sal Mais Viver", "construtora": "Jotanunes Construtora", "bairro_normalizado": "Aruana", "status_obra": "Lançamento (0% concluído); previsão de entrega 30/04/2030", "preco_minimo": 227900, "preco_detalhe": "A partir de R$ 227.900", "metragem_min": 42.23, "metragem_max": 67.64, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Lazer completo (detalhes genéricos, não discriminados)", "link": "https://barrosenobre.com.br/empreendimento/38736/flor-de-sal-mais-viver"}, {"id": 19, "nome": "Flor de Lótus Mais Viver", "construtora": "Jotanunes Construtora", "bairro_normalizado": "Aruana", "status_obra": "Em construção (18% concluído geral; fundação 94%; estrutura 24%); previsão de entrega 30/09/2028", "preco_minimo": 232900, "preco_detalhe": "A partir de R$ 232.900", "metragem_min": 67, "metragem_max": 67, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida); área de lazer completa entregue equipada", "area_lazer": "Área de lazer completa (detalhes específicos não listados)", "link": "https://barrosenobre.com.br/empreendimento/31084/flor-de-ltus-mais-viver"}, {"id": 20, "nome": "Residencial Vale do Amanhecer", "construtora": "Não identificada", "bairro_normalizado": "Capucho", "status_obra": "Lançamento (0% concluído); previsão de entrega 31/12/2028", "preco_minimo": 233990, "preco_detalhe": "A partir de R$ 233.990", "metragem_min": 39.77, "metragem_max": 39.84, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Piscinas adulto e infantil, playground, salão de festas, espaço gourmet, churrasqueira, miniquadra, playbaby, futmesa, bicicletário, market", "link": "https://barrosenobre.com.br/empreendimento/36634/residencial-vale-do-amanhecer"}, {"id": 49, "nome": "Belo Rio Mais Viver", "construtora": "Jotanunes Construtora", "bairro_normalizado": "Soledade", "status_obra": "Em construção - Fundação 68,74% concluída, demais etapas em 0%. Entrega prevista 2028", "preco_minimo": 239000, "preco_detalhe": "A partir de R$ 239.000,00", "metragem_min": 42.23, "metragem_max": 67.64, "quartos_min": 1, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico/MCMV (Minha Casa Minha Vida)", "area_lazer": "Piscinas, salão de festas, churrasqueira, pomar, bicicletário, pier, academia/fitness, espaço kids, beach volley, quadra poliesportiva, pet park, pergolado", "link": "https://jotanunes.com/empreendimentos/belo-rio-mais-viver/"}, {"id": 21, "nome": "Alameda Imperial", "construtora": "Não identificada", "bairro_normalizado": "Marivan", "status_obra": "Em construção; previsão de entrega 30/06/2027", "preco_minimo": 242990, "preco_detalhe": "A partir de R$ 242.990", "metragem_min": 45, "metragem_max": 45, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Piscina adulto e infantil, churrasqueira, condomínio fechado com segurança", "link": "https://barrosenobre.com.br/empreendimento/20340/alameda-imperial"}, {"id": 22, "nome": "Moradas da Aruana", "construtora": "Dicon Engenharia", "bairro_normalizado": "Aruana", "status_obra": "Em construção (54% concluída); previsão de entrega 31/08/2027", "preco_minimo": 243892, "preco_detalhe": "A partir de R$ 243.892", "metragem_min": 46.85, "metragem_max": 60.73, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/médio (Minha Casa Minha Vida, subsídio até R$ 55 mil; lazer mais completo que os demais MCMV listados)", "area_lazer": "Piscinas adulto e infantil, academia, salão de festas e de jogos, brinquedoteca, espaço gourmet, espaço multimídia, parque infantil, campinho, minimercado, espaço pet care, bicicletário, central de gás, estacionamento para visitantes, coworking", "link": "https://barrosenobre.com.br/empreendimento/35755/moradas-da-aruana"}, {"id": 32, "nome": "Residencial Caetê Serigy", "construtora": "Não identificada", "bairro_normalizado": "Farolândia", "status_obra": "Em construção (estrutura)", "preco_minimo": 249900, "preco_detalhe": "R$ 249.900,00 (unidade de 70,29m², 3 quartos)", "metragem_min": 58, "metragem_max": 88, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido)", "area_lazer": "Bicicletário, brinquedoteca, deck, espaço gourmet, piscina, salão de festas, salão de jogos", "link": "https://www.lopes.com.br/lancamento/REM21485/"}, {"id": 64, "nome": "Grand View Residence", "construtora": "AC Engenharia", "bairro_normalizado": "Aruana", "status_obra": "Lançamento (percentual de conclusão não informado)", "preco_minimo": 253760, "preco_detalhe": "A partir de R$ 253.760 (outra fonte indicou R$ 279.056)", "metragem_min": 49.9, "metragem_max": 56.52, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "Não confirmado (não especificado por unidade na página)", "padrao_acabamento": "Médio-alto (inferido; não explicitado no site)", "area_lazer": "Piscina adulto e infantil, cinema, espaço gourmet, academia, coworking, salão de festas, pub lounge, brinquedoteca, pet care, espaço zen, entre outros", "link": "https://acengenhariase.com.br/empreendimentos/gran-review/"}, {"id": 25, "nome": "Aruana Park Residence", "construtora": "AC Engenharia", "bairro_normalizado": "Zona de Expansão (Aruana)", "status_obra": "Início de obras (fundação)", "preco_minimo": 263945.51, "preco_detalhe": "A partir de R$ 263.945,51", "metragem_min": 49, "metragem_max": 56, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico/médio (inferido pela metragem reduzida)", "area_lazer": "Academia, brinquedoteca, cinema, espaço gourmet, pet place/pet care, piscinas adulto/infantil, playground, quadra poliesportiva, salão de festas, salão de jogos, spa", "link": "https://www.lopes.com.br/lancamento/REM21458/"}, {"id": 23, "nome": "Evidence Jabotiana", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Jabotiana", "status_obra": "Início de obras (fundação)", "preco_minimo": 265400, "preco_detalhe": "R$ 265.400,00 (unidade específica, anúncio já finalizado)", "metragem_min": 60, "metragem_max": 72, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido pelo bairro/metragem)", "area_lazer": "Academia, churrasqueira, pet care, piscina, praça, redário, salão de festas/jogos", "link": "https://www.lopes.com.br/lancamento/REM21441/"}, {"id": 24, "nome": "Aruana Prime", "construtora": "AC Engenharia", "bairro_normalizado": "Zona de Expansão (Aruana)", "status_obra": "Início de obras (fundação)", "preco_minimo": 268426.5, "preco_detalhe": "A partir de R$ 268.426,50", "metragem_min": 58, "metragem_max": 71, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido - clube de lazer completo, mas metragens compactas)", "area_lazer": "Academia, campo de futebol, churrasqueira, cinema, espaço gourmet, pet care, piscinas adulto/infantil, playground, quadra poliesportiva, quadra de tênis, salão de festas, salão de jogos", "link": "https://www.lopes.com.br/lancamento/REM21457/"}, {"id": 56, "nome": "Porto Arboreto", "construtora": "Construtora Impacto", "bairro_normalizado": "Jabotiana", "status_obra": "Lançamento — 100% vendido (3 torres, 12 pavimentos, 283 unidades)", "preco_minimo": 271000, "preco_detalhe": "A partir de R$ 271.000,00", "metragem_min": 56.2, "metragem_max": 79.14, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "Edifício-garagem com elevador e vagas cobertas (quantidade por unidade não especificada)", "padrao_acabamento": "Médio-alto — porcelanato, varanda com guarda-corpo de vidro, infraestrutura para ar-condicionado nos quartos, gás natural, luminárias inteligentes nas áreas comuns", "area_lazer": "Salão de festas, academia, minimercado, playground, brinquedoteca, piscinas (adulto, infantil, aquecida), espaço gourmet, varanda gourmet, pet place, pet care, coworking, bicicletário, quadra esportiva", "link": "https://construtoraimpacto.com.br/imovel/porto-arboreto/"}, {"id": 52, "nome": "Vista Rio de Janeiro", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "Ponto Novo", "status_obra": "Lançamento previsto para janeiro/2026. Entrega estimada dezembro/2030", "preco_minimo": 275320.58, "preco_detalhe": "A partir de R$ 275.320,58 (planta de 44 m²)", "metragem_min": 44, "metragem_max": 57, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico/MCMV", "area_lazer": "Academia, churrasqueira, bicicletário, brinquedoteca, deck, piscina adulto e infantil, jardim, pet play, play kids, quadra de esportes, salão de festas", "link": "https://meustanza.com/empreendimento/vista-rio-de-janeiro/"}, {"id": 5, "nome": "Vértice", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "Bairro não identificado", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 276000, "preco_detalhe": "A partir de R$ 276.000", "metragem_min": null, "metragem_max": null, "quartos_min": 3, "quartos_max": 3, "vagas_garagem": "1 vaga", "padrao_acabamento": "Econômico/popular (Minha Casa Minha Vida)", "area_lazer": "Não descrito na página", "link": "https://centuryimobiliaria.com.br/empreendimento/37385/vrtice"}, {"id": 12, "nome": "Solare Residence", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Jabotiana", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 282600, "preco_detalhe": "A partir de R$ 282.600", "metragem_min": null, "metragem_max": null, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade; 1 vaga de visitante com infraestrutura para carregamento de carro elétrico", "padrao_acabamento": "Médio padrão", "area_lazer": "Varanda gourmet integrada à cozinha, tomadas USB nas áreas comuns, Wi-Fi nas áreas comuns", "link": "https://centuryimobiliaria.com.br/empreendimento/35312/solare-residence"}, {"id": 31, "nome": "Condomínio Porto Sollare", "construtora": "Construtora Impacto", "bairro_normalizado": "Inácio Barbosa", "status_obra": "Em construção (estrutura)", "preco_minimo": 285000, "preco_detalhe": "R$ 285.000,00 (unidade específica, anúncio já finalizado)", "metragem_min": 47, "metragem_max": 61, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico/médio (inferido - metragens compactas, 1 banheiro)", "area_lazer": "Academia, bicicletário, deck, elevador, espaço gourmet, fitness, forno para pizza, piscina adulto, playground, quadra poliesportiva, salão de festas", "link": "https://www.lopes.com.br/lancamento/REM21459/"}, {"id": 51, "nome": "Alvorada", "construtora": "Stanza Incorporação e Construção", "bairro_normalizado": "Farolândia", "status_obra": "Lançamento", "preco_minimo": 315000, "preco_detalhe": "A partir de R$ 315.000", "metragem_min": 55.67, "metragem_max": 99.91, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por apartamento (288 vagas no total)", "padrao_acabamento": "Médio/MCMV faixa alta (piso laminado em sala e quartos, varanda com guarda-corpo em vidro; renda mínima exigida de R$ 7.000)", "area_lazer": "Academia climatizada, brinquedoteca, espaço gourmet com 2 churrasqueiras, pet play, pergolado, piscina adulto e infantil, play kids, quadra de esportes, salão de festas", "link": "https://meustanza.com/empreendimento/alvorada/"}, {"id": 63, "nome": "Pérolas do Mar", "construtora": "AC Engenharia", "bairro_normalizado": "Bairro não identificado", "status_obra": "Lançamento", "preco_minimo": 318175.77, "preco_detalhe": "A partir de R$ 318.175,77", "metragem_min": 58.17, "metragem_max": 71.05, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "Não confirmado (não especificado por unidade na página)", "padrao_acabamento": "Médio-alto (inferido pelas áreas de lazer extensas e localização próxima à praia; não explicitado no site)", "area_lazer": "Mais de 18 áreas de lazer, incluindo piscina com deck molhado, salão de festas, academia com espaço cross, cinema, petplay, coworking, quadras esportivas, beach tennis, parque infantil, bicicletário, minimarket, lounge de jogos e brinquedoteca", "link": "https://acengenhariase.com.br/empreendimentos/perolas-do-mar/"}, {"id": 37, "nome": "Marbello Residence", "construtora": "Não identificada", "bairro_normalizado": "Coroa do Meio", "status_obra": "Em construção (estrutura)", "preco_minimo": 340000, "preco_detalhe": "R$ 340.000,00 (anúncio de revenda/finalizado)", "metragem_min": 53, "metragem_max": 67, "quartos_min": 1, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido)", "area_lazer": "Academia, brinquedoteca, churrasqueira, espaço gourmet, fitness, piscina adulto/infantil, playground, quadra poliesportiva, salão de festas, salão de jogos", "link": "https://www.lopes.com.br/lancamento/REM21464/"}, {"id": 62, "nome": "Poesia Art Home", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Ponto Novo", "status_obra": "Pronto para morar — 100% concluído", "preco_minimo": 345300, "preco_detalhe": "A partir de R$ 345.300", "metragem_min": null, "metragem_max": null, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "Não especificado na página", "padrao_acabamento": "Alto — 'elegância e arte em cada detalhe', varanda gourmet, energia solar nas áreas comuns, pré-disposição para portaria remota e wi-fi, tomadas USB", "area_lazer": "Varanda gourmet, box delivery, áreas comuns com pré-disposição para wi-fi e portaria remota", "link": "https://uniaoconstrucoes.com.br/imovel/poesia-art-home/"}, {"id": 65, "nome": "Santa Lúcia Park Residence", "construtora": "AC Engenharia", "bairro_normalizado": "Jabotiana", "status_obra": "Lançamento", "preco_minimo": 350000, "preco_detalhe": "A partir de R$ 350.000", "metragem_min": 58.17, "metragem_max": 71.05, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "Não confirmado (não especificado por unidade na página)", "padrao_acabamento": "Médio-alto (inferido; não explicitado no site)", "area_lazer": "Salão de festas, lounge, coworking/office, espaço gourmet, cinema, brinquedoteca, bicicletário, espaço zen, parque infantil, jogos, quadra de esportes, pet play, academia/cross/boxe, pet care, piscina adulto e infantil com deck molhado, minimercado", "link": "https://acengenhariase.com.br/empreendimentos/santa-lucia-park-residence/"}, {"id": 50, "nome": "Concept Jardins", "construtora": "Moura Dubeux", "bairro_normalizado": "Jardins", "status_obra": "Em construção - 60% concluído (Estrutura 100%, Alvenaria 100%, Fachada 44%, Acabamento 40%). Entrega prevista Agosto/2026", "preco_minimo": 363484, "preco_detalhe": "A partir de R$ 363.484", "metragem_min": 31, "metragem_max": 68, "quartos_min": 1, "quartos_max": 2, "vagas_garagem": "Não informado no site", "padrao_acabamento": "Não especificado explicitamente (inferido como médio-alto, dado posicionamento da Moura Dubeux)", "area_lazer": "Pavimento específico de lazer incluído no empreendimento (detalhes não listados individualmente)", "link": "https://www.mouradubeux.com.br/sergipe/aracaju/jardins/residencias-incorporacao/01-e-02-quartos/concept-jardins"}, {"id": 6, "nome": "Mood Farol", "construtora": "Moura Dubeux", "bairro_normalizado": "Farolândia", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 370478, "preco_detalhe": "A partir de R$ 370.478", "metragem_min": 65, "metragem_max": 65, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Alto padrão (primeiro lançamento do Complexo Farol Boulevard)", "area_lazer": "Mais de 15 itens de lazer e comodidades (detalhes não discriminados na página)", "link": "https://centuryimobiliaria.com.br/empreendimento/35359/mood-farol"}, {"id": 48, "nome": "La Vie Residence", "construtora": "Jotanunes Construtora", "bairro_normalizado": "Jabotiana", "status_obra": "Em construção - Fundação 15,16%. Entrega prevista 2029", "preco_minimo": 372906.92, "preco_detalhe": "A partir de R$ 372.906,92", "metragem_min": null, "metragem_max": null, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade (Deck Park - estacionamento automatizado)", "padrao_acabamento": "Médio-alto (acabamentos modernos, design contemporâneo)", "area_lazer": "Piscina adulto/infantil com raia de 20m, gourmet, quiosque, salão de festas, academia, quadra esportiva, parque infantil, pet place, coworking, minimercado", "link": "https://jotanunes.com/empreendimentos/la-vie-residence/"}, {"id": 40, "nome": "One Life Studio", "construtora": "Não identificada", "bairro_normalizado": "Treze de Julho", "status_obra": "Início de obras (fundação)", "preco_minimo": 380000, "preco_detalhe": "A partir de R$ 380.000,00 (apto 1 quarto); Studio a partir de R$ 419.800; apto 2 quartos a partir de R$ 490.000", "metragem_min": 37, "metragem_max": 72, "quartos_min": 1, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido - studios compactos com conveniência urbana)", "area_lazer": "Academia, espaço gourmet, varanda gourmet, piscina adulto, hall, centro de conveniência, acesso PCD, segurança/portaria, elevador, internet, ar-condicionado", "link": "https://www.lopes.com.br/lancamento/REM21436/"}, {"id": 28, "nome": "Residencial Del Rey", "construtora": "Não identificada", "bairro_normalizado": "Farolândia", "status_obra": "Pronto para morar", "preco_minimo": 420000, "preco_detalhe": "R$ 420.000,00 (valor médio/unidade disponível)", "metragem_min": 55, "metragem_max": 65, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 a 2 vagas por unidade", "padrao_acabamento": "Médio (inferido)", "area_lazer": "Churrasqueira, deck, salão de festas, salão de jogos, academia, bicicletário, piscina", "link": "https://www.lopes.com.br/lancamento/REM21480/"}, {"id": 41, "nome": "Urbanus Luzia", "construtora": "Celi Construções", "bairro_normalizado": "Luzia", "status_obra": "Em construção (estrutura)", "preco_minimo": 422206.2, "preco_detalhe": "A partir de R$ 422.206,20 (planta de 59 m²)", "metragem_min": 59, "metragem_max": 74, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido)", "area_lazer": "Brinquedoteca, churrasqueira, coworking, deck, espaço gourmet, fitness, piscina adulto/infantil, playground, praça, quadra poliesportiva, sala de leitura, salão de jogos", "link": "https://www.lopes.com.br/lancamento/REM21426/"}, {"id": 38, "nome": "Mirante Do Mar", "construtora": "Construtora Impacto", "bairro_normalizado": "Atalaia", "status_obra": "Início de obras (fundação)", "preco_minimo": 480000, "preco_detalhe": "A partir de R$ 480.000,00", "metragem_min": 67, "metragem_max": 128, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 a 2 vagas conforme a unidade", "padrao_acabamento": "Médio-alto (inferido - bairro Atalaia, coworking/lounge, unidades grandes com 2 vagas)", "area_lazer": "Academia, bicicletário, brinquedoteca, churrasqueira, coworking, lounge, piscina, quadra, salão de festas", "link": "https://www.lopes.com.br/lancamento/REM21449/"}, {"id": 35, "nome": "Milano Residence", "construtora": "Construtora Impacto", "bairro_normalizado": "Coroa do Meio", "status_obra": "Na planta (obra não iniciada)", "preco_minimo": 505000, "preco_detalhe": "A partir de R$ 505.000,00", "metragem_min": 67, "metragem_max": 85, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido)", "area_lazer": "Academia, piscina adulto, playground, espaço gourmet, salão de festas, quadra poliesportiva, brinquedoteca, churrasqueira, sala de reuniões, internet", "link": "https://www.lopes.com.br/lancamento/REM21425/"}, {"id": 46, "nome": "Arbo Residence", "construtora": "Celi Construções", "bairro_normalizado": "Farolândia", "status_obra": "Em construção - Avanço total 48% (Serviços preliminares 100%, Fundações 100%, Estrutura 98%, Alvenaria 70%, Instalações hidrossanitárias 48%, Instalações elétricas 45%). Entrega prevista Agosto/2027", "preco_minimo": 505179.42, "preco_detalhe": "A partir de R$ 505.179,42", "metragem_min": 64.41, "metragem_max": 79.55, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "Até 2 vagas por unidade", "padrao_acabamento": "Médio-alto (infraestrutura para ar-condicionado split, energia solar nas áreas comuns, ponto de recarga para carro elétrico)", "area_lazer": "Áreas de lazer equipadas, bicicletário, SPA com hidromassagem, piscina", "link": "https://www.celi.com.br/imovel/arbo-residence/"}, {"id": 9, "nome": "Epic Residence", "construtora": "Construtora Santa Maria", "bairro_normalizado": "Atalaia", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 523528, "preco_detalhe": "A partir de R$ 523.528", "metragem_min": 50, "metragem_max": 97, "quartos_min": 1, "quartos_max": 3, "vagas_garagem": "Mencionadas como disponíveis; quantidade por tipologia não especificada", "padrao_acabamento": "Médio/alto padrão", "area_lazer": "Amplo leque de facilidades integradas ao condomínio (detalhes não discriminados na página)", "link": "https://centuryimobiliaria.com.br/empreendimento/35325/epic-residence"}, {"id": 55, "nome": "Raízes Jabotiana", "construtora": "Construtora Impacto", "bairro_normalizado": "Marcelo Deda (São Cristóvão – fora de Aracaju)", "status_obra": "Lançamento — 100% vendido (164 casas: 76 Prestige + 88 Essence)", "preco_minimo": 564000, "preco_detalhe": "A partir de R$ 564.000,00", "metragem_min": 76.43, "metragem_max": 451.01, "quartos_min": 3, "quartos_max": 4, "vagas_garagem": "Não especificado na página", "padrao_acabamento": "Médio-alto — fachada com cerâmica, textura e pintura; piso em porcelanato nas áreas secas e living integrado; revestimento até o teto nos banheiros", "area_lazer": "20 áreas de lazer em mais de 5.300 m²: piscina adulto e infantil, deck molhado, academia, salão de festas, quadra de beach tennis, quadra de esportes, espaço gourmet/pet, bicicletário, praças, redário, espaço primeira infância", "link": "https://construtoraimpacto.com.br/imovel/raizes-jabotiana/"}, {"id": 60, "nome": "Lumière Art Home", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Coroa do Meio", "status_obra": "Em construção — progresso geral 9,40% (fundação 91,98%, estrutura 6,31%); 3 elevadores (2 sociais + 1 serviço)", "preco_minimo": 565700, "preco_detalhe": "A partir de R$ 565.700 (planta de 64m²)", "metragem_min": 64.29, "metragem_max": 87.05, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "Até 2 vagas de garagem por unidade", "padrao_acabamento": "Alto — varanda gourmet com guarda-corpo de vidro, living integrado, fechadura eletrônica, tomadas USB, energia solar nas áreas comuns", "area_lazer": "Piscina, espaço gourmet, coworking, academia, sala de dança, playground, salão de festas, pet care, espaço pet, bicicletário", "link": "https://uniaoconstrucoes.com.br/imovel/ilumiere-art-home/"}, {"id": 59, "nome": "Dune Simple Life", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Aruana", "status_obra": "Lançamento — torre única com 50 apartamentos, frente para o mar", "preco_minimo": 581400, "preco_detalhe": "A partir de R$ 581.400", "metragem_min": 77.3, "metragem_max": 79.38, "quartos_min": 2, "quartos_max": 2, "vagas_garagem": "Não especificado na página", "padrao_acabamento": "Alto — design biofílico na fachada, fechadura eletrônica, living integrado (sala, cozinha, varanda)", "area_lazer": "Rooftop completo: piscina com borda infinita, hidromassagem, sauna a vapor, academia, área gourmet VIP, espaço luau, garden grill, mini mercado, coworking, bike e ferramentaria, delivery", "link": "https://uniaoconstrucoes.com.br/imovel/dune-simple-life/"}, {"id": 57, "nome": "Macau Beach Residence", "construtora": "Construtora Impacto", "bairro_normalizado": "Coroa do Meio", "status_obra": "Em construção — 37% concluído (jun/2026); fundação 100%, estrutura 63,17%, alvenaria 36,52%, acabamentos 14,90%, área comum 35,46%; entrega prevista dez/2027; 3 torres, 13 pavimentos, 309 unidades; 100% vendido", "preco_minimo": 593000, "preco_detalhe": "A partir de R$ 593.000,00", "metragem_min": 57.3, "metragem_max": 96.55, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "Não especificado na página", "padrao_acabamento": "Alto — porcelanato acetinado, sancas em gesso, guarda-corpo de vidro na varanda, gás natural individualizado, fechadura digital, luminárias inteligentes nas áreas comuns", "area_lazer": "Espaço fitness/cross, coworking, minimercado, salão de festas com apoio, playground, brinquedoteca, pet place e pet care, bicicletário, bike wash, piscina adulto e infantil, deck molhado, gazebo, espaço churrasco, quadra de esportes, quadra de beach tênis", "link": "https://construtoraimpacto.com.br/imovel/macau-beach-residence/"}, {"id": 34, "nome": "Mansão Du Soleil", "construtora": "União Engenharia e Construções", "bairro_normalizado": "Atalaia", "status_obra": "Início de obras (fundação)", "preco_minimo": 613000, "preco_detalhe": "R$ 613.000,00 (unidade específica, valor atualizado após redução de R$ 632.000)", "metragem_min": 55, "metragem_max": 94, "quartos_min": 1, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio-alto (inferido - bairro turístico/praia Atalaia, coworking, pergola)", "area_lazer": "Playground, fitness, piscina, salão de festas, salão de jogos, espaço gourmet, pergola, coworking, brinquedoteca", "link": "https://www.lopes.com.br/lancamento/REM21453/"}, {"id": 54, "nome": "Portillo Residence", "construtora": "Constren Construtora", "bairro_normalizado": "Atalaia", "status_obra": "Em construção - 57% concluído (agosto/2026). Entrega prevista Novembro/2027", "preco_minimo": 613900, "preco_detalhe": "A partir de R$ 613.900", "metragem_min": 68, "metragem_max": 99, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga (unidades de 68 m²) ou 2 vagas (unidades de 83 a 99 m²)", "padrao_acabamento": "Alto padrão", "area_lazer": "Piscina adulto e infantil com deck, espaço gourmet com churrasqueira, academia, brinquedoteca, parque infantil, coworking, salão de festas, energia solar", "link": "https://constren.com.br/portillo.html"}, {"id": 26, "nome": "Jaime Gusmão", "construtora": "Não identificada", "bairro_normalizado": "Jardins", "status_obra": "Pronto para morar", "preco_minimo": 625000, "preco_detalhe": "R$ 625.000,00 (unidade específica)", "metragem_min": 73, "metragem_max": 156, "quartos_min": 3, "quartos_max": 3, "vagas_garagem": "2 vagas por unidade", "padrao_acabamento": "Alto padrão (inferido - bairro Jardins, muitas suítes, 2 vagas)", "area_lazer": "Piscina, quadra esportiva, playground, salão de festas, espaço gourmet, academia, brinquedoteca, churrasqueira, cerca elétrica, gás encanado", "link": "https://www.lopes.com.br/lancamento/REM21450/"}, {"id": 27, "nome": "Reserva Alameda", "construtora": "Não identificada", "bairro_normalizado": "Luzia", "status_obra": "Pronto para morar", "preco_minimo": 675000, "preco_detalhe": "A partir de R$ 675.000,00 (menor unidade listada)", "metragem_min": 67, "metragem_max": 122, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio-alto (inferido - amplo clube de lazer, home office)", "area_lazer": "Bar, brinquedoteca, deck, espaço gourmet, fitness, home office, piscina adulto/infantil, playground, sala de leitura, salão de festas adulto/infantil, salão de jogos, solarium", "link": "https://www.lopes.com.br/lancamento/REM21427/"}, {"id": 44, "nome": "Trianon Jardins", "construtora": "Não identificada", "bairro_normalizado": "Jardins", "status_obra": "Pronto para morar (concluído)", "preco_minimo": 700000, "preco_detalhe": "R$ 700.000,00 (72 m², 2 quartos, 1 suíte)", "metragem_min": 72, "metragem_max": 102, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "2 vagas por unidade (padrão em todas)", "padrao_acabamento": "Alto padrão (inferido - bairro Jardins, múltiplas suítes, 2 vagas em todas as unidades, gás encanado)", "area_lazer": "Brinquedoteca, espaço gourmet, piscina, playground, quadra poliesportiva, salão de festas, salão de jogos, gás encanado", "link": "https://www.lopes.com.br/lancamento/REM21451/"}, {"id": 8, "nome": "Joya Residence", "construtora": "Primasa Engenharia", "bairro_normalizado": "Coroa do Meio", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 714952, "preco_detalhe": "A partir de R$ 714.952", "metragem_min": 53.28, "metragem_max": 190.45, "quartos_min": 4, "quartos_max": 4, "vagas_garagem": "Não especificado claramente na página", "padrao_acabamento": "Alto padrão (fachada 100% revestida, acesso biométrico facial, varandas gourmet)", "area_lazer": "Piscina com raia de 15 m, academia com mais de 100 m², salão gourmet, brinquedoteca e espaços de convivência", "link": "https://centuryimobiliaria.com.br/empreendimento/35337/joya-residence"}, {"id": 42, "nome": "Duetto Residence", "construtora": "Constren Construtora", "bairro_normalizado": "Farolândia", "status_obra": "Início de obras (fundação)", "preco_minimo": 743893.5, "preco_detalhe": "R$ 743.893,50 (anúncio corrente) / A partir de R$ 899.000,00 para planta de 99 m² (portal Apto)", "metragem_min": 99, "metragem_max": 99, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "2 vagas por unidade", "padrao_acabamento": "Médio-alto (inferido - 2 vagas, coworking, metragem grande única de 99m²)", "area_lazer": "Churrasqueira, piscina, playground, quadra poliesportiva, salão de festas, espaço gourmet, fitness, espaço kids, coworking", "link": "https://www.lopes.com.br/lancamento/REM21434/"}, {"id": 10, "nome": "Interlagos Residence", "construtora": "Construtora Santa Maria", "bairro_normalizado": "Aruana", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 824375, "preco_detalhe": "A partir de R$ 824.375", "metragem_min": 360, "metragem_max": 565.96, "quartos_min": null, "quartos_max": null, "vagas_garagem": "Não aplicável (venda de lotes)", "padrao_acabamento": "Alto padrão (loteamento fechado)", "area_lazer": "Quadra de areia para Beach Tênis e Vôlei de Praia, piscina com deck molhado, academia de 2 pavimentos, quadra esportiva, parque infantil, jardim, praça, quiosques, área gourmet próxima à piscina, salão de festas amplo", "link": "https://centuryimobiliaria.com.br/empreendimento/35324/interlagos-residence"}, {"id": 30, "nome": "Ravello Residence", "construtora": "Constren Construtora", "bairro_normalizado": "Jardins", "status_obra": "Pronto para morar", "preco_minimo": 917000, "preco_detalhe": "R$ 917.000,00 (unidade específica, anúncio já finalizado)", "metragem_min": 100, "metragem_max": 109, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Alto padrão (inferido - bairro Jardins, múltiplas suítes)", "area_lazer": "Academia, brinquedoteca, espaço gourmet, piscina adulto/infantil, playground, salão de festas, salão de jogos", "link": "https://www.lopes.com.br/lancamento/REM21446/"}, {"id": 33, "nome": "Bayside Residence", "construtora": "Não identificada", "bairro_normalizado": "Coroa do Meio", "status_obra": "Início de obras (fundação)", "preco_minimo": 950000, "preco_detalhe": "A partir de R$ 950.000,00", "metragem_min": 55, "metragem_max": 79, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Médio (inferido - Coroa do Meio, coworking/lounge sugerem médio-alto)", "area_lazer": "Academia, brinquedoteca, churrasqueira, coworking, espaço gourmet, lounge, piscina, quadra, salão de festas", "link": "https://www.lopes.com.br/lancamento/REM21447/"}, {"id": 7, "nome": "Casa Jardins", "construtora": "Moura Dubeux", "bairro_normalizado": "Jardins", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 1006730, "preco_detalhe": "A partir de R$ 1.006.730", "metragem_min": 124, "metragem_max": 124, "quartos_min": 3, "quartos_max": 3, "vagas_garagem": "2 vagas", "padrao_acabamento": "Alto padrão", "area_lazer": "Projeto urbano com áreas arbóreas de conforto e convivência (paisagismo Takeda Design, arquitetura Pontual Arquitetos, ambientação Poligonus Arquitetura)", "link": "https://centuryimobiliaria.com.br/empreendimento/35344/casa-jardins"}, {"id": 47, "nome": "Garden Village", "construtora": "Celi Construções", "bairro_normalizado": "Farolândia", "status_obra": "Pronto para morar - Terraplanagem 100%, Infraestrutura 100%, Áreas de lazer 100%, Paisagismo 100%", "preco_minimo": 1809841, "preco_detalhe": "A partir de R$ 1.809.841,00 (lotes de 448 m² a 790 m²)", "metragem_min": 53, "metragem_max": 790.2, "quartos_min": null, "quartos_max": null, "vagas_garagem": "Não aplicável (lotes; a construir por proprietário)", "padrao_acabamento": "Alto padrão", "area_lazer": "Praças, parques e áreas verdes", "link": "https://www.celi.com.br/imovel/garden-village/"}, {"id": 11, "nome": "Acqualina Residence", "construtora": "Construtora Santa Maria", "bairro_normalizado": "Atalaia", "status_obra": "Lançamento (0% concluído)", "preco_minimo": 1906397, "preco_detalhe": "A partir de R$ 1.906.397", "metragem_min": 147.28, "metragem_max": 154.98, "quartos_min": 4, "quartos_max": 4, "vagas_garagem": "Até 4 vagas", "padrao_acabamento": "Altíssimo padrão (frente mar)", "area_lazer": "Não especificadas na página", "link": "https://centuryimobiliaria.com.br/empreendimento/35322/acqualina-residence"}, {"id": 45, "nome": "Neruda", "construtora": "Celi Construções", "bairro_normalizado": "Atalaia", "status_obra": "Em construção - Avanço total 34,72% (Serviços preliminares 100%, Fundação 98%, Estrutura 89,42%, Alvenaria 56,65%, Instalações 25%). Entrega prevista Dezembro/2027", "preco_minimo": 2000000, "preco_detalhe": "R$ 2.000.000,00", "metragem_min": 146.49, "metragem_max": 330.07, "quartos_min": null, "quartos_max": null, "vagas_garagem": "Até 4 vagas por unidade", "padrao_acabamento": "Alto padrão", "area_lazer": "Piscina adulto, piscina infantil, fitness outdoor, playground infantil, mirante sombreado, área de jogos, bicicletário", "link": "https://www.celi.com.br/imovel/neruda/"}, {"id": 29, "nome": "Everest Residence", "construtora": "Não identificada", "bairro_normalizado": "Jardins", "status_obra": "Pronto para morar (concluído)", "preco_minimo": null, "preco_detalhe": "Não divulgado", "metragem_min": 136, "metragem_max": 164, "quartos_min": 3, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Alto padrão (inferido - bairro Jardins, metragens grandes, coworking/lounge)", "area_lazer": "Academia, brinquedoteca, churrasqueira, coworking, espaço gourmet, lounge, piscina, quadra, salão de festas", "link": "https://www.lopes.com.br/lancamento/REM21445/"}, {"id": 43, "nome": "Solar Nova Aruana", "construtora": "Não identificada", "bairro_normalizado": "Aeroporto", "status_obra": "Pronto para morar (em acabamento)", "preco_minimo": null, "preco_detalhe": "Não divulgado", "metragem_min": 50, "metragem_max": 54, "quartos_min": 2, "quartos_max": 3, "vagas_garagem": "1 vaga por unidade", "padrao_acabamento": "Econômico/médio (inferido - metragens compactas)", "area_lazer": "Academia, espaço gourmet (2), piscina adulto/infantil, playground, praça, redário, salão de festas, salão de jogos, solarium, pet place", "link": "https://www.lopes.com.br/lancamento/REM21435/"}, {"id": 13, "nome": "Turim Atalaia (Pré-Lançamento)", "construtora": "Construtora Impacto", "bairro_normalizado": "Atalaia", "status_obra": "Pré-lançamento (0% concluído)", "preco_minimo": null, "preco_detalhe": "Não divulgado", "metragem_min": 78.29, "metragem_max": 78.29, "quartos_min": 3, "quartos_max": 3, "vagas_garagem": "Mencionadas como disponíveis; quantidade não discriminada", "padrao_acabamento": "Médio/alto padrão (região da orla de Atalaia)", "area_lazer": "Não detalhado; empreendimento com 3 torres, próximo à orla, serviços e gastronomia", "link": "https://barrosenobre.com.br/empreendimento/43248/turim-atalaia-pr-lanamento"}], "programas": [{"id": 1, "nome": "Minha Casa Minha Vida", "esfera": "federal", "orgao_responsavel": "Ministério das Cidades / CAIXA", "descricao": "Programa federal de financiamento e subsídio habitacional, com quatro faixas de renda. Faixa 4 criada recentemente para ampliar o público a servidores públicos, autônomos formalizados e pequenos empresários. Uso de FGTS permitido para entrada, amortização ou quitação.", "fonte_url": "https://www.vivanterreimoveis.com.br/en/blog/minha-casa-minha-vida-2026-criterios-de-elegibilidade-faixas-de-renda-e-aspectos-juridicos-do-programa"}, {"id": 2, "nome": "Casa Sergipana", "esfera": "estadual", "orgao_responsavel": "Governo do Estado de Sergipe", "descricao": "Programa estadual de subsídio habitacional com quatro modalidades (Entrada Fácil, Habitacional FAR, FNHIS Sub 50, Entidades). Pode ser somado ao subsídio federal do MCMV. Inscrição pelo portal casasergipana.se.gov.br.", "fonte_url": "https://velarisimobiliaria.com.br/casa-sergipana-programa-habitacao-sergipe/"}, {"id": 3, "nome": "Auxílio Moradia / Adesão ao MCMV", "esfera": "municipal", "orgao_responsavel": "Prefeitura de Aracaju (Semfas) / Ministério das Cidades", "descricao": "A Prefeitura de Aracaju atua como parceira operacional do MCMV federal (contrato assinado com o Ministério das Cidades) e mantém benefício próprio de Auxílio Moradia, pagamento temporário voltado a famílias removidas de áreas de risco (encostas, alagamentos) ou em vulnerabilidade social, enquanto aguardam realocação definitiva. Critérios numéricos exatos (teto de renda, valor do benefício, duração) não confirmados na fonte oficial — validar com a Semfas antes de usar como filtro automático.", "fonte_url": "https://www.aracaju.se.gov.br/noticias/107808/prefeito_edvaldo_e_ministro_marcio_macedo_assinam_contrato_para_execucao_do_minha_casa_minha_vida_em_aracaju.html"}, {"id": 4, "nome": "Crédito Imobiliário Tradicional (SFH/SFI)", "esfera": "federal", "orgao_responsavel": "Bancos e instituições financeiras (Sistema Financeiro de Habitação/SFI), regulamentado pelo Banco Central", "descricao": "Não é um programa de subsídio social, e sim o financiamento bancário tradicional (fora do Minha Casa Minha Vida), indicado para famílias com renda acima dos tetos do MCMV (Faixa 4, acima de R$13.000/mês) ou que preferem não usar programas sociais. Sujeito a análise de crédito, entrada própria e comprometimento de renda com a parcela.", "fonte_url": null}], "faixas": [{"id": 1, "programa_id": 1, "nome_faixa": "Faixa 1", "renda_familiar_min": 0, "renda_familiar_max": 3200, "valor_subsidio_min": 0, "valor_subsidio_max": 55000, "valor_maximo_imovel": 275000, "percentual_max_comprometimento_renda": 25, "observacoes": "Taxa de juros aprox. 4% a.a. (Norte/Nordeste) a 4,25% a.a. (demais regiões). Prestação mensal calculada como % da renda familiar, não pelo sistema tradicional. Subsídio pode chegar a R$65.000 em municípios do Norte. Requer cadastro no CadÚnico. Valores de referência nacionais 2026 — confirmar teto local na Caixa."}, {"id": 2, "programa_id": 1, "nome_faixa": "Faixa 2", "renda_familiar_min": 3200.01, "renda_familiar_max": 5000, "valor_subsidio_min": 0, "valor_subsidio_max": 55000, "valor_maximo_imovel": 275000, "percentual_max_comprometimento_renda": 25, "observacoes": "Subsídio parcial conforme renda dentro da faixa; taxa de juros facilitada, abaixo do mercado. Valor máximo do imóvel pode variar (R$264.000–R$330.000) conforme porte do município. Valores de referência nacionais 2026 — confirmar na Caixa."}, {"id": 3, "programa_id": 1, "nome_faixa": "Faixa 3", "renda_familiar_min": 5000.01, "renda_familiar_max": 9600, "valor_subsidio_min": 0, "valor_subsidio_max": 0, "valor_maximo_imovel": 400000, "percentual_max_comprometimento_renda": 30, "observacoes": "Sem subsídio direto do governo, mas com taxas de juros mais baixas que o financiamento tradicional (aprox. 8,16% a 8,39% a.a.). Uso de FGTS permitido (entrada, amortização). Valores de referência nacionais 2026 — confirmar na Caixa."}, {"id": 10, "programa_id": 1, "nome_faixa": "Faixa 4 (Classe Média)", "renda_familiar_min": 9600.01, "renda_familiar_max": 13000, "valor_subsidio_min": 0, "valor_subsidio_max": 0, "valor_maximo_imovel": 600000, "percentual_max_comprometimento_renda": 30, "observacoes": "Faixa criada para ampliar o público do MCMV a servidores públicos, autônomos formalizados e pequenos empresários com renda entre R$9.600,01 e R$13.000. Sem subsídio direto; taxa de juros aprox. 10% a 10,5% a.a.; prazo de até 420 meses (35 anos). Valores de referência nacionais 2026 — confirmar na Caixa."}, {"id": 11, "programa_id": 2, "nome_faixa": "Entrada Fácil - Faixa 1", "renda_familiar_min": 0, "renda_familiar_max": 2850, "valor_subsidio_min": 20000, "valor_subsidio_max": 75000, "valor_maximo_imovel": 275000, "percentual_max_comprometimento_renda": 25, "observacoes": "Modalidade Entrada Fácil do Casa Sergipana: subsídio estadual de R$20.000 somado ao subsídio federal do MCMV Faixa 1, podendo totalizar até R$75.000 para ajudar na entrada de imóvel financiado. Prioridade para mulheres vítimas de violência doméstica, mães solo, chefes de família, PCD, idosos e famílias com crianças pequenas. Requer residir em Sergipe há pelo menos 1 ano e não possuir imóvel próprio."}, {"id": 12, "programa_id": 2, "nome_faixa": "Entrada Fácil - Faixa 2", "renda_familiar_min": 2850.01, "renda_familiar_max": 4700, "valor_subsidio_min": 15000, "valor_subsidio_max": 70000, "valor_maximo_imovel": 275000, "percentual_max_comprometimento_renda": 25, "observacoes": "Modalidade Entrada Fácil do Casa Sergipana: subsídio estadual de R$15.000 somado ao subsídio federal do MCMV Faixa 2, podendo totalizar até R$70.000 para ajudar na entrada de imóvel financiado. Mesmos critérios de prioridade e residência da Faixa 1."}, {"id": 13, "programa_id": 4, "nome_faixa": "Financiamento bancário (sem teto de renda)", "renda_familiar_min": 0, "renda_familiar_max": null, "valor_subsidio_min": 0, "valor_subsidio_max": 0, "valor_maximo_imovel": 2250000, "percentual_max_comprometimento_renda": 30, "observacoes": "Sem subsídio governamental. Financiamento sujeito a análise de crédito, entrada própria (normalmente 10% a 20% do valor do imóvel) e comprometimento máximo de ~30% da renda familiar com a parcela. Teto do SFH (Sistema Financeiro de Habitação, que permite uso de FGTS) é de R$2.250.000 (desde nov/2025); acima disso, o financiamento é via SFI, com regras próprias do banco. Taxas de mercado tipicamente entre 10% e 13% a.a., variando por banco e uso de recursos da poupança/SBPE."}], "criterios": [{"id": 5, "programa_id": 1, "tipo": "documento_exigido", "codigo": "doc_carteira_trabalho", "descricao": "Carteira de trabalho."}, {"id": 7, "programa_id": 1, "tipo": "documento_exigido", "codigo": "doc_comprovante_renda", "descricao": "Comprovante de renda dos últimos 6 meses (ou extratos bancários e declaração de IR do último ano para autônomos)."}, {"id": 4, "programa_id": 1, "tipo": "documento_exigido", "codigo": "doc_declaracao_ir", "descricao": "Declaração de Imposto de Renda - Pessoa Física."}, {"id": 3, "programa_id": 1, "tipo": "documento_exigido", "codigo": "doc_estado_civil", "descricao": "Comprovante de estado civil."}, {"id": 6, "programa_id": 1, "tipo": "documento_exigido", "codigo": "doc_fgts", "descricao": "Extrato do FGTS."}, {"id": 8, "programa_id": 1, "tipo": "documento_exigido", "codigo": "doc_rg_cpf", "descricao": "RG e CPF."}, {"id": 1, "programa_id": 1, "tipo": "modalidade", "codigo": "uso_fgts", "descricao": "FGTS pode ser usado para entrada, amortização do saldo devedor ou quitação total/parcial, conforme regras vigentes."}, {"id": 31, "programa_id": 1, "tipo": "prioridade", "codigo": "grupos_prioritarios", "descricao": "Mulheres vítimas de violência doméstica e chefes de família monoparental, pessoas com deficiência, idosos, famílias com crianças pequenas, população em situação de rua, indígenas e quilombolas têm prioridade no critério de desempate."}, {"id": 10, "programa_id": 1, "tipo": "requisito_obrigatorio", "codigo": "aprovacao_credito", "descricao": "Aprovação em análise de crédito pela instituição financeira (enquadramento na faixa de renda não garante aprovação)."}, {"id": 29, "programa_id": 1, "tipo": "requisito_obrigatorio", "codigo": "cadunico_faixa1", "descricao": "Faixa 1: exige inscrição/atualização no CadÚnico (Cadastro Único para Programas Sociais). Faixas 2 a 4: comprovação de renda formal ou informal, sem exigência de CadÚnico."}, {"id": 12, "programa_id": 1, "tipo": "requisito_obrigatorio", "codigo": "capacidade_pagamento", "descricao": "Capacidade de pagamento demonstrada; parcela do financiamento não pode exceder ~30% da renda mensal."}, {"id": 13, "programa_id": 1, "tipo": "requisito_obrigatorio", "codigo": "comprova_renda_familiar", "descricao": "Comprovação da renda familiar mensal."}, {"id": 11, "programa_id": 1, "tipo": "requisito_obrigatorio", "codigo": "cpf_regular", "descricao": "CPF/cadastro sem pendências."}, {"id": 9, "programa_id": 1, "tipo": "requisito_obrigatorio", "codigo": "sem_imovel_proprio", "descricao": "Não possuir imóvel financiado ou em seu nome na cidade onde pretende comprar; imóvel destinado exclusivamente à moradia própria."}, {"id": 2, "programa_id": 1, "tipo": "restricao", "codigo": "uma_unidade_por_familia", "descricao": "Imóvel deve estar localizado na mesma região de trabalho ou residência atual; benefício limitado a uma unidade por família/CPF."}, {"id": 19, "programa_id": 2, "tipo": "documento_exigido", "codigo": "doc_cadastro_online", "descricao": "Cadastro online em casasergipana.se.gov.br com dados pessoais, comprovação de renda e composição familiar."}, {"id": 35, "programa_id": 2, "tipo": "documento_exigido", "codigo": "documentos_basicos", "descricao": "RG, CPF, comprovante de renda, comprovante de residência e declaração de não possuir imóvel, submetidos via portal casasergipana.se.gov.br; após triagem da Seasic, o processo segue para a Caixa Econômica Federal."}, {"id": 20, "programa_id": 2, "tipo": "modalidade", "codigo": "entidades", "descricao": "Entidades: projetos de cooperativas e movimentos de moradia habilitados (410 unidades)."}, {"id": 23, "programa_id": 2, "tipo": "modalidade", "codigo": "entrada_facil", "descricao": "Entrada Fácil: estado cobre a entrada (até R$20 mil Faixa 1 / R$15 mil Faixa 2)."}, {"id": 21, "programa_id": 2, "tipo": "modalidade", "codigo": "fnhis_sub50", "descricao": "FNHIS Sub 50: destinado a municípios com menos de 50 mil habitantes (780 unidades em 36 municípios) — não se aplica a Aracaju."}, {"id": 22, "programa_id": 2, "tipo": "modalidade", "codigo": "habitacional_far", "descricao": "Casa Sergipana Habitacional (FAR): unidades totalmente subsidiadas, sem necessidade de financiamento (400 unidades)."}, {"id": 14, "programa_id": 2, "tipo": "prioridade", "codigo": "familia_crianca_pequena", "descricao": "Famílias com crianças pequenas."}, {"id": 15, "programa_id": 2, "tipo": "prioridade", "codigo": "idoso", "descricao": "Idosos."}, {"id": 17, "programa_id": 2, "tipo": "prioridade", "codigo": "mae_solo", "descricao": "Mães solo."}, {"id": 18, "programa_id": 2, "tipo": "prioridade", "codigo": "mulher_violencia_domestica", "descricao": "Mulheres em situação de violência doméstica."}, {"id": 16, "programa_id": 2, "tipo": "prioridade", "codigo": "pessoa_com_deficiencia", "descricao": "Pessoas com deficiência."}, {"id": 33, "programa_id": 2, "tipo": "requisito_obrigatorio", "codigo": "residente_se_1_ano", "descricao": "Residir no estado de Sergipe há no mínimo 1 ano."}, {"id": 34, "programa_id": 2, "tipo": "requisito_obrigatorio", "codigo": "sem_imovel_proprio", "descricao": "Não possuir imóvel próprio."}, {"id": 26, "programa_id": 3, "tipo": "prioridade", "codigo": "area_risco", "descricao": "Prioridade para famílias removidas de áreas de risco (encostas, alagamentos) ou obras públicas."}, {"id": 25, "programa_id": 3, "tipo": "prioridade", "codigo": "ja_beneficiario_bolsa_familia", "descricao": "Famílias já cadastradas em programas como Bolsa Família tendem a ter processo facilitado."}, {"id": 27, "programa_id": 3, "tipo": "requisito_obrigatorio", "codigo": "cadunico_atualizado", "descricao": "Cadastro Único (CadÚnico) atualizado facilita/é geralmente pré-requisito para inscrição."}, {"id": 24, "programa_id": 3, "tipo": "restricao", "codigo": "criterios_nao_confirmados", "descricao": "Teto de renda, valor exato do benefício e duração do Auxílio Moradia municipal não foram confirmados na fonte oficial (site com conteúdo renderizado via JS não acessível para extração automática) — confirmar com a Semfas antes de usar como filtro automático de elegibilidade."}, {"id": 39, "programa_id": 4, "tipo": "requisito_obrigatorio", "codigo": "analise_credito", "descricao": "Sujeito a análise de crédito (score, histórico, comprometimento de renda). Normalmente exige entrada própria de 10% a 20% do valor do imóvel."}, {"id": 40, "programa_id": 4, "tipo": "restricao", "codigo": "teto_sfh_fgts", "descricao": "Para usar recursos do FGTS ou taxas do SFH, o imóvel deve custar até R$2.250.000 (teto vigente desde nov/2025) e ser destinado à moradia própria em área urbana."}]}</script>
+<script>
+(function(){
+  "use strict";
+  var DATA = JSON.parse(document.getElementById('dados-busca-imovel').textContent);
+
+  var BRL = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+  var BRL2 = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:2});
+  function fmt(v){ return (v===null||v===undefined) ? '—' : BRL.format(v); }
+
+  var PROGRAMA_LABELS = {};
+  DATA.programas.forEach(function(p){ PROGRAMA_LABELS[p.id] = p; });
+
+  // ---------- Family members ----------
+  var membersEl = document.getElementById('members');
+  var members = [
+    {label:'Responsável', renda:''},
+    {label:'Cônjuge/Companheiro(a)', renda:''}
+  ];
+  var memberSeq = 0;
+
+  function renderMembers(){
+    membersEl.innerHTML = '';
+    members.forEach(function(m, idx){
+      var row = document.createElement('div');
+      row.className = 'member-row';
+
+      var nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = m.label;
+      nameInput.setAttribute('id', 'member-name-'+idx);
+      nameInput.setAttribute('aria-label','Quem é essa pessoa na família');
+      nameInput.addEventListener('input', function(){ m.label = nameInput.value; });
+
+      var moneyWrap = document.createElement('div');
+      moneyWrap.className = 'money-field';
+      var span = document.createElement('span'); span.textContent = 'R$';
+      var moneyInput = document.createElement('input');
+      moneyInput.type = 'number';
+      moneyInput.min = '0';
+      moneyInput.step = '50';
+      moneyInput.placeholder = '0';
+      moneyInput.value = m.renda;
+      moneyInput.setAttribute('id', 'member-renda-'+idx);
+      moneyInput.setAttribute('aria-label','Renda mensal bruta desta pessoa');
+      moneyInput.addEventListener('input', function(){
+        m.renda = moneyInput.value === '' ? '' : (parseFloat(moneyInput.value) || 0);
+        recompute();
+      });
+      moneyWrap.appendChild(span); moneyWrap.appendChild(moneyInput);
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'icon-btn';
+      removeBtn.title = 'Remover';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', function(){
+        members.splice(idx,1);
+        renderMembers();
+        recompute();
+      });
+
+      row.appendChild(nameInput);
+      row.appendChild(moneyWrap);
+      row.appendChild(removeBtn);
+      membersEl.appendChild(row);
+    });
+  }
+
+  document.getElementById('add-member').addEventListener('click', function(){
+    memberSeq++;
+    members.push({label:'Pessoa '+(members.length+1), renda:''});
+    renderMembers();
+    recompute();
+  });
+
+  // ---------- Bairros ----------
+  var bairroCounts = {};
+  DATA.empreendimentos.forEach(function(e){
+    bairroCounts[e.bairro_normalizado] = (bairroCounts[e.bairro_normalizado]||0)+1;
+  });
+  var foraKeys = Object.keys(bairroCounts).filter(function(b){ return b.indexOf('fora de Aracaju') !== -1; });
+  var aracajuKeys = Object.keys(bairroCounts).filter(function(b){ return foraKeys.indexOf(b) === -1; });
+  aracajuKeys.sort(function(a,b){ return bairroCounts[b]-bairroCounts[a] || a.localeCompare(b,'pt-BR'); });
+  foraKeys.sort();
+
+  var selectedBairros = new Set(['Farolândia','Jabotiana']);
+
+  function chipLabel(b){
+    if(b === 'Bairro não identificado') return 'Bairro não informado na fonte';
+    return b.replace(' (São Cristóvão – fora de Aracaju)','');
+  }
+
+  function renderChips(container, keys){
+    container.innerHTML = '';
+    keys.forEach(function(b){
+      var label = document.createElement('label');
+      label.className = 'chip' + (selectedBairros.has(b) ? ' on' : '');
+      var input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = selectedBairros.has(b);
+      input.addEventListener('change', function(){
+        if(input.checked){ selectedBairros.add(b); } else { selectedBairros.delete(b); }
+        label.classList.toggle('on', input.checked);
+        recompute();
+      });
+      var span = document.createElement('span');
+      span.textContent = chipLabel(b);
+      var count = document.createElement('span');
+      count.className = 'count';
+      count.textContent = '('+bairroCounts[b]+')';
+      label.appendChild(input);
+      label.appendChild(span);
+      label.appendChild(count);
+      container.appendChild(label);
+    });
+  }
+
+  document.getElementById('sel-all').addEventListener('click', function(){
+    aracajuKeys.concat(foraKeys).forEach(function(b){ selectedBairros.add(b); });
+    renderChips(document.getElementById('chips-aracaju'), aracajuKeys);
+    renderChips(document.getElementById('chips-fora'), foraKeys);
+    recompute();
+  });
+  document.getElementById('sel-none').addEventListener('click', function(){
+    selectedBairros.clear();
+    renderChips(document.getElementById('chips-aracaju'), aracajuKeys);
+    renderChips(document.getElementById('chips-fora'), foraKeys);
+    recompute();
+  });
+
+  document.getElementById('btn-buscar').addEventListener('click', function(){
+    document.getElementById('resultados').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  var toggleBudget = document.getElementById('toggle-budget');
+  toggleBudget.addEventListener('change', recompute);
+
+  // ---------- Core calculations ----------
+  function rendaTotal(){
+    return members.reduce(function(s,m){ return s + (parseFloat(m.renda)||0); }, 0);
+  }
+
+  function estimateTraditional(renda){
+    var comprometimento = 0.30, taxaAnual = 0.11, n = 360;
+    var i = taxaAnual/12;
+    var pmt = renda*comprometimento;
+    if(pmt<=0) return 0;
+    var financiavel = pmt*(1-Math.pow(1+i,-n))/i;
+    var valorImovel = financiavel/(1-0.20);
+    return Math.min(valorImovel, 2250000);
+  }
+
+  function faixasMatched(renda){
+    return DATA.faixas.filter(function(f){
+      var min = Number(f.renda_familiar_min)||0;
+      var max = f.renda_familiar_max===null ? Infinity : Number(f.renda_familiar_max);
+      return renda >= min && renda <= max;
+    });
+  }
+
+  function criteriosFor(programaId){
+    return DATA.criterios.filter(function(c){ return c.programa_id === programaId; });
+  }
+
+  function escapeAttr(s){
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Short, factual blurb for a program (+ optional faixa) shown as an icon hint on badges/tiles —
+  // this is what replaced the old standalone "programas" panel.
+  function programHint(programaId, nomeFaixa){
+    var p = PROGRAMA_LABELS[programaId];
+    if(/Tradicional/i.test(p.nome)){
+      return 'Financiamento bancário comum, sem subsídio. Sujeito a análise de crédito e entrada própria (10% a 20%). Teto do SFH/uso de FGTS: '+fmt(2250000)+'.';
+    }
+    var faixa = nomeFaixa ? DATA.faixas.filter(function(f){ return f.programa_id===programaId && f.nome_faixa===nomeFaixa; })[0] : null;
+    var bits = [];
+    bits.push((p.esfera.charAt(0).toUpperCase()+p.esfera.slice(1))+' · '+p.orgao_responsavel+'.');
+    if(faixa){
+      if(faixa.valor_subsidio_max && Number(faixa.valor_subsidio_max)>0) bits.push('Subsídio de até '+fmt(faixa.valor_subsidio_max)+'.');
+      if(faixa.valor_maximo_imovel) bits.push('Imóvel de até '+fmt(faixa.valor_maximo_imovel)+' nesta faixa.');
+    }
+    var reqs = criteriosFor(programaId).filter(function(c){ return c.tipo==='requisito_obrigatorio'; });
+    if(reqs.length) bits.push(reqs[0].descricao);
+    return bits.join(' ');
+  }
+
+  function recompute(){
+    var renda = rendaTotal();
+    document.getElementById('renda-total').textContent = fmt(renda);
+
+    if(renda <= 0){
+      document.getElementById('summary').innerHTML =
+        '<div class="summary-tile"><div class="k">Renda familiar</div><div class="v num">'+fmt(0)+'</div></div>'+
+        '<div class="summary-tile"><div class="k">Programa social aplicável</div><div class="v">—</div></div>'+
+        '<div class="summary-tile"><div class="k">Orçamento estimado de imóvel</div><div class="v">—</div></div>'+
+        '<div class="summary-tile"><div class="k">Imóveis compatíveis</div><div class="v">—</div></div>';
+      document.getElementById('properties').innerHTML = '<div class="empty-state">Informe a renda de ao menos um familiar acima para ver os imóveis e o orçamento estimado.</div>';
+      document.getElementById('noprice').innerHTML = '';
+      return;
+    }
+
+    var matched = faixasMatched(renda);
+    var matchedByPrograma = {};
+    matched.forEach(function(f){ (matchedByPrograma[f.programa_id]=matchedByPrograma[f.programa_id]||[]).push(f); });
+
+    var traditionalEstimate = estimateTraditional(renda);
+    var traditionalProgramId = DATA.programas.filter(function(p){ return /Tradicional/i.test(p.nome); }).map(function(p){return p.id;})[0];
+
+    // price ceiling = best of all matched SOCIAL faixas' valor_maximo_imovel and the personalized traditional-credit estimate.
+    // The traditional program's own faixa row carries the flat SFH ceiling (R$2,25 mi), not an income-personalized figure,
+    // so it is deliberately excluded here in favor of estimateTraditional(renda).
+    var ceiling = traditionalEstimate;
+    matched.forEach(function(f){
+      if(f.programa_id === traditionalProgramId) return;
+      var v = f.valor_maximo_imovel===null ? 0 : Number(f.valor_maximo_imovel);
+      if(v > ceiling) ceiling = v;
+    });
+
+    // ---- Property tagging (each tag carries its own icon-hint text — this is the programs' explanation now) ----
+    function badgesFor(preco){
+      var tags = [];
+      matched.forEach(function(f){
+        if(f.programa_id === traditionalProgramId) return; // handled below via the personalized estimate
+        if(f.valor_maximo_imovel!==null && Number(f.valor_maximo_imovel) >= preco){
+          var pname = PROGRAMA_LABELS[f.programa_id].nome.replace('Minha Casa Minha Vida','MCMV');
+          var cls = PROGRAMA_LABELS[f.programa_id].esfera;
+          tags.push({text: pname+' — '+f.nome_faixa, cls: cls, tip: programHint(f.programa_id, f.nome_faixa)});
+        }
+      });
+      if(traditionalEstimate >= preco){
+        tags.push({text:'Crédito tradicional', cls:'federal', tip: programHint(traditionalProgramId, null)});
+      }
+      return tags;
+    }
+
+    var withPrice = DATA.empreendimentos.filter(function(e){ return e.preco_minimo!==null && selectedBairros.has(e.bairro_normalizado); });
+    var noPrice = DATA.empreendimentos.filter(function(e){ return e.preco_minimo===null && selectedBairros.has(e.bairro_normalizado); });
+
+    var withinBudget = withPrice.filter(function(e){ return Number(e.preco_minimo) <= ceiling; });
+    var overBudget = withPrice.filter(function(e){ return Number(e.preco_minimo) > ceiling; });
+
+    var toShow = toggleBudget.checked ? withinBudget : withPrice.slice().sort(function(a,b){return a.preco_minimo-b.preco_minimo;});
+    if(toggleBudget.checked) toShow = toShow.slice().sort(function(a,b){return a.preco_minimo-b.preco_minimo;});
+
+    // ---- Summary strip ----
+    var summaryEl = document.getElementById('summary');
+    var faixaPrincipal = matched.filter(function(f){ return !/Tradicional/i.test(PROGRAMA_LABELS[f.programa_id].nome); })[0];
+    var programaTip = faixaPrincipal
+      ? programHint(faixaPrincipal.programa_id, faixaPrincipal.nome_faixa)
+      : 'Nenhum programa social federal ou estadual se aplica a esta renda — veja o selo "Crédito tradicional" nos imóveis abaixo.';
+    summaryEl.innerHTML =
+      '<div class="summary-tile"><div class="k">Renda familiar</div><div class="v num">'+fmt(renda)+'</div></div>'+
+      '<div class="summary-tile"><div class="k">Programa social aplicável</div><div class="v accent">'+(faixaPrincipal ? PROGRAMA_LABELS[faixaPrincipal.programa_id].nome.replace('Minha Casa Minha Vida','MCMV')+' · '+faixaPrincipal.nome_faixa : 'Nenhum') +'<span class="tip icon-only" tabindex="0" data-tip="'+escapeAttr(programaTip)+'">ⓘ</span></div></div>'+
+      '<div class="summary-tile"><div class="k">Orçamento estimado de imóvel</div><div class="v accent2 num">'+fmt(ceiling)+'</div></div>'+
+      '<div class="summary-tile"><div class="k">Imóveis compatíveis</div><div class="v num">'+toShow.length+'</div></div>';
+
+    // ---- Properties list ----
+    var propsEl = document.getElementById('properties');
+    propsEl.innerHTML = '';
+    if(!selectedBairros.size){
+      propsEl.innerHTML = '<div class="empty-state">Selecione ao menos um bairro de interesse para ver imóveis.</div>';
+    } else if(!toShow.length){
+      propsEl.innerHTML = '<div class="empty-state">Nenhum imóvel com preço divulgado nesses bairros dentro do orçamento estimado.'+(overBudget.length ? ' Há '+overBudget.length+' imóvel(is) acima do orçamento — desmarque o filtro acima para ver.' : '')+'</div>';
+    } else {
+      toShow.forEach(function(e){
+        var tags = badgesFor(Number(e.preco_minimo));
+        var quartos = (e.quartos_min!==null) ? (e.quartos_min===e.quartos_max ? e.quartos_min+' qto(s)' : e.quartos_min+'–'+e.quartos_max+' qtos') : null;
+        var area = (e.metragem_min!==null) ? (e.metragem_min===e.metragem_max ? e.metragem_min+' m²' : e.metragem_min+'–'+e.metragem_max+' m²') : null;
+        var metaBits = [e.construtora, e.chipDisp].filter(Boolean);
+        var div = document.createElement('div');
+        div.className = 'prop';
+        div.innerHTML =
+          '<div class="info">'+
+            '<h3>'+e.nome+'</h3>'+
+            '<div class="meta">'+chipLabel(e.bairro_normalizado)+' · '+(e.construtora||'construtora não informada')+'</div>'+
+            '<div class="details-line">'+[e.status_obra, quartos, area, e.vagas_garagem].filter(Boolean).join(' · ')+'</div>'+
+            '<div class="badges">'+tags.map(function(t){return '<span class="badge tip '+t.cls+'" tabindex="0" data-tip="'+escapeAttr(t.tip)+'">'+t.text+' <span class="tip-icon" aria-hidden="true">ⓘ</span></span>';}).join('')+'</div>'+
+          '</div>'+
+          '<div class="price-col">'+
+            '<div class="price num">'+fmt(Number(e.preco_minimo))+'<small>preço mínimo estimado</small></div>'+
+            (e.link ? '<a class="link" href="'+e.link+'" target="_blank" rel="noopener">Ver anúncio →</a>' : '')+
+          '</div>';
+        propsEl.appendChild(div);
+      });
+    }
+
+    var noPriceEl = document.getElementById('noprice');
+    if(noPrice.length){
+      noPriceEl.innerHTML = 'Sem preço público divulgado nos bairros selecionados (consulte a construtora): <ul>'+
+        noPrice.map(function(e){ return '<li>'+e.nome+' — '+chipLabel(e.bairro_normalizado)+(e.link?' — <a href="'+e.link+'" target="_blank" rel="noopener">anúncio</a>':'')+'</li>'; }).join('')+
+        '</ul>';
+    } else {
+      noPriceEl.innerHTML = '';
+    }
+  }
+
+  renderMembers();
+  renderChips(document.getElementById('chips-aracaju'), aracajuKeys);
+  renderChips(document.getElementById('chips-fora'), foraKeys);
+  recompute();
+})();
+</script>
