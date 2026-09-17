@@ -220,6 +220,25 @@
   footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;}
   footer p{margin:0 0 6px;}
 
+  /* Chat assistant (Gemini) */
+  .key-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+  .key-row input[type="password"]{flex:1 1 220px;min-width:0;}
+  .key-row label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;}
+  .key-status{font-size:12px;color:var(--muted);margin:0 0 14px;}
+  .chat-log{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px;height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
+  .msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:13.8px;line-height:1.45;white-space:pre-wrap;}
+  .msg.bot{background:var(--surface);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:3px;}
+  .msg.user{background:var(--accent);color:var(--accent-ink);align-self:flex-end;border-bottom-right-radius:3px;}
+  .msg.system{align-self:center;color:var(--muted);font-size:12px;background:none;border:none;padding:2px 0;max-width:100%;text-align:center;}
+  .chat-input-row{display:flex;gap:8px;}
+  .chat-input-row input{flex:1;min-width:0;}
+  .chat-send{background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;padding:0 18px;font:inherit;font-weight:700;cursor:pointer;}
+  .chat-send:disabled{opacity:.5;cursor:default;}
+  .chat-hint{font-size:12px;color:var(--muted);margin-top:10px;}
+  .divider-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin:22px 0;}
+  .divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--line);}
+  #saudacao{font-size:15px;margin:0 0 12px;}
+
   ::selection{background:var(--accent);color:var(--accent-ink);}
 </style>
 
@@ -238,6 +257,28 @@
   </header>
 
   <div class="stack">
+
+    <section class="card" id="form-chat">
+      <div class="section-title">
+        <h2>Converse com o assistente</h2>
+      </div>
+      <p class="hint-note" style="margin-top:-4px;">Ele pergunta só seu nome, sua renda familiar e os bairros de interesse — e já preenche o relatório abaixo sozinho. Roda com a sua própria chave da API do Gemini, direto no seu navegador.</p>
+
+      <div class="key-row">
+        <input type="password" id="gemini-key" placeholder="Cole sua chave da API do Gemini" aria-label="Chave da API do Gemini" autocomplete="off">
+        <label><input type="checkbox" id="gemini-key-remember" checked> lembrar neste navegador</label>
+      </div>
+      <p class="key-status">Sua chave fica salva só neste navegador (nunca é enviada para nós — só direto ao Google). <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Gerar uma chave gratuita ↗</a></p>
+
+      <div class="chat-log" id="chat-log"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Digite sua resposta..." aria-label="Mensagem para o assistente">
+        <button class="chat-send" id="chat-send" type="button">Enviar</button>
+      </div>
+      <p class="chat-hint">Prefere preencher você mesmo? Use o formulário abaixo a qualquer momento — os dois ficam sincronizados.</p>
+    </section>
+
+    <div class="divider-or">ou preencha manualmente</div>
 
     <section class="card" id="form-renda">
       <div class="section-title">
@@ -272,6 +313,7 @@
     </section>
 
     <section id="resultados">
+      <p id="saudacao" style="display:none;"></p>
       <div class="summary-strip" id="summary"></div>
 
       <div class="section-title">
@@ -591,6 +633,198 @@
       noPriceEl.innerHTML = '';
     }
   }
+
+  // ---------- Chat assistant (Gemini) ----------
+  // Runs entirely client-side: each visitor pastes their OWN Gemini API key (kept only in
+  // their own browser's localStorage, never sent anywhere but straight to Google's API).
+  // This widget only works from a file opened/served outside claude.ai (e.g. GitHub Pages) —
+  // pages published through Claude's Artifact tool block this kind of external network call.
+  var GEMINI_MODEL = 'gemini-flash-latest';
+  var GEMINI_KEY_STORAGE = 'bussolaMoradiaGeminiKey';
+  var chatHistory = [];
+  var chatBusy = false;
+  var chatDone = false;
+
+  var keyInput = document.getElementById('gemini-key');
+  var keyRemember = document.getElementById('gemini-key-remember');
+  var chatLogEl = document.getElementById('chat-log');
+  var chatInputEl = document.getElementById('chat-input');
+  var chatSendBtn = document.getElementById('chat-send');
+  var saudacaoEl = document.getElementById('saudacao');
+
+  try {
+    var chaveSalva = localStorage.getItem(GEMINI_KEY_STORAGE);
+    if (chaveSalva) keyInput.value = chaveSalva;
+  } catch (e) { /* private browsing / storage blocked — fine, just won't remember */ }
+
+  function salvarChaveSeNecessario(){
+    try {
+      if (keyRemember.checked && keyInput.value) localStorage.setItem(GEMINI_KEY_STORAGE, keyInput.value);
+      else localStorage.removeItem(GEMINI_KEY_STORAGE);
+    } catch (e) { /* ignore */ }
+  }
+
+  var BAIRROS_VALIDOS_CHAT = aracajuKeys.concat(foraKeys);
+
+  var CHAT_SYSTEM_PROMPT = [
+    'Voce e o assistente de atendimento inicial da Bussola Moradia, um servico que ajuda',
+    'familias a encontrar imoveis a venda em Aracaju/SE compativeis com sua renda, e informa',
+    'quais programas habitacionais podem ajudar na compra.',
+    '',
+    'Sua UNICA tarefa nesta conversa e coletar, em poucas trocas curtas e naturais, EXATAMENTE',
+    'estas tres informacoes -- nenhuma outra:',
+    '1. O nome da pessoa.',
+    '2. A renda familiar mensal bruta total (some a renda de todos os moradores maiores de 18',
+    '   anos que vao morar no imovel e constar no financiamento; se perguntarem o que conta,',
+    '   explique isso em uma frase).',
+    '3. Os bairros de Aracaju de interesse (pode ser mais de um). Use somente nomes da lista',
+    '   de valores validos do parametro da funcao -- se a pessoa citar algo fora da lista ou',
+    '   de forma imprecisa, pergunte de novo ou sugira o nome mais proximo da lista.',
+    '',
+    'Regras: nao peca CPF, endereco, telefone, e-mail, documentos ou qualquer outro dado alem',
+    'dos tres acima. Pergunte uma informacao de cada vez, de forma cordial e objetiva. Assim',
+    'que tiver as tres informacoes com confianca, chame a funcao registrar_dados_usuario -- nao',
+    'chame antes disso, e nao gere voce mesmo nenhum relatorio de imoveis ou de programas (isso',
+    'e feito por outro sistema depois que voce registra os dados).'
+  ].join('\n');
+
+  function ferramentaRegistrarDados(){
+    return { functionDeclarations: [{
+      name: 'registrar_dados_usuario',
+      description: 'Registra o nome, a renda familiar mensal total e os bairros de interesse assim que as tres informacoes tiverem sido coletadas na conversa.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          nome: { type: 'STRING', description: 'Nome da pessoa.' },
+          renda_familiar_mensal: { type: 'NUMBER', description: 'Renda familiar mensal bruta total, em reais.' },
+          bairros_interesse: {
+            type: 'ARRAY',
+            description: 'Bairros de Aracaju de interesse da pessoa.',
+            items: { type: 'STRING', enum: BAIRROS_VALIDOS_CHAT }
+          }
+        },
+        required: ['nome', 'renda_familiar_mensal', 'bairros_interesse']
+      }
+    }] };
+  }
+
+  function addChatMsg(role, texto){
+    var div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.textContent = texto;
+    chatLogEl.appendChild(div);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+    return div;
+  }
+
+  function normalizarBairroChat(bairro){
+    if (BAIRROS_VALIDOS_CHAT.indexOf(bairro) !== -1) return bairro;
+    var alvo = String(bairro).toLowerCase();
+    var achado = BAIRROS_VALIDOS_CHAT.filter(function(b){
+      var bl = b.toLowerCase();
+      return bl.indexOf(alvo) !== -1 || alvo.indexOf(bl) !== -1;
+    })[0];
+    return achado || bairro;
+  }
+
+  function chamarGemini(apiKey, historico){
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey);
+    return fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        contents: historico,
+        systemInstruction: {parts: [{text: CHAT_SYSTEM_PROMPT}]},
+        tools: [ferramentaRegistrarDados()]
+      })
+    }).then(function(res){
+      if (!res.ok) {
+        return res.json().catch(function(){ return null; }).then(function(errBody){
+          var msg = (errBody && errBody.error && errBody.error.message) || ('erro HTTP ' + res.status);
+          throw new Error(msg);
+        });
+      }
+      return res.json();
+    });
+  }
+
+  function extrairResposta(data){
+    var cand = data && data.candidates && data.candidates[0];
+    var parts = (cand && cand.content && cand.content.parts) || [];
+    var texto = '', functionCall = null;
+    parts.forEach(function(p){
+      if (p.text) texto += p.text;
+      if (p.functionCall && !functionCall) functionCall = p.functionCall;
+    });
+    return {texto: texto, functionCall: functionCall};
+  }
+
+  function aplicarDadosColetados(nome, renda, bairros){
+    members = [{label: 'Renda familiar (via assistente)', renda: renda}];
+    renderMembers();
+    selectedBairros.clear();
+    bairros.forEach(function(b){ selectedBairros.add(normalizarBairroChat(b)); });
+    renderChips(document.getElementById('chips-aracaju'), aracajuKeys);
+    renderChips(document.getElementById('chips-fora'), foraKeys);
+    saudacaoEl.textContent = 'Relatório para ' + nome;
+    saudacaoEl.style.display = 'block';
+    recompute();
+    document.getElementById('resultados').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+
+  function enviarMensagemChat(){
+    if (chatBusy || chatDone) return;
+    var texto = chatInputEl.value.trim();
+    if (!texto) return;
+    var apiKey = keyInput.value.trim();
+    if (!apiKey) {
+      addChatMsg('system', 'Cole sua chave da API do Gemini acima antes de conversar.');
+      return;
+    }
+    salvarChaveSeNecessario();
+    addChatMsg('user', texto);
+    chatHistory.push({role: 'user', parts: [{text: texto}]});
+    chatInputEl.value = '';
+    chatBusy = true;
+    chatSendBtn.disabled = true;
+    var pensando = addChatMsg('system', 'Pensando...');
+
+    chamarGemini(apiKey, chatHistory).then(function(data){
+      chatLogEl.removeChild(pensando);
+      var out = extrairResposta(data);
+      if (out.functionCall) {
+        var args = out.functionCall.args || {};
+        var nome = String(args.nome || 'Você').trim();
+        var renda = Number(args.renda_familiar_mensal) || 0;
+        var bairros = Array.isArray(args.bairros_interesse) ? args.bairros_interesse.map(String) : [];
+        addChatMsg('bot', 'Prontinho, ' + nome + '! Já preenchi o relatório abaixo com o que você me contou.');
+        chatDone = true;
+        chatInputEl.disabled = true;
+        chatSendBtn.disabled = true;
+        aplicarDadosColetados(nome, renda, bairros);
+      } else {
+        chatHistory.push({role: 'model', parts: [{text: out.texto || ''}]});
+        addChatMsg('bot', out.texto || '(sem resposta)');
+      }
+    }).catch(function(err){
+      if (pensando.parentNode) chatLogEl.removeChild(pensando);
+      addChatMsg('system', 'Não consegui falar com a API do Gemini (' + err.message + '). Confira a chave e sua conexão, ou preencha manualmente abaixo.');
+    }).finally(function(){
+      chatBusy = false;
+      if (!chatDone) chatSendBtn.disabled = false;
+    });
+  }
+
+  chatSendBtn.addEventListener('click', enviarMensagemChat);
+  chatInputEl.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); enviarMensagemChat(); }
+  });
+
+  (function saudacaoInicial(){
+    var texto = 'Olá! Sou o assistente da Bússola Moradia. Para começar, qual é o seu nome?';
+    addChatMsg('bot', texto);
+    chatHistory.push({role: 'model', parts: [{text: texto}]});
+  })();
 
   renderMembers();
   renderChips(document.getElementById('chips-aracaju'), aracajuKeys);
